@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berhasil - Arsipin</title>
+<link rel="icon" type="image/svg+xml" href="./ascon-logo.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{--ink:#17314f;--muted:#60789a;--accent:#1d6ff2;--blue:#0866c6;--orange:#ff9f43;--line:rgba(77,120,185,.18)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:linear-gradient(135deg,#071d49 0%,#0b4f9c 48%,#1d8fe1 100%);font-family:"DM Sans","Segoe UI",sans-serif;color:var(--ink)}.success-card{width:min(470px,100%);padding:34px 32px;background:rgba(255,255,255,.97);border:1px solid rgba(29,111,242,.22);border-left:7px solid var(--blue);border-radius:22px;box-shadow:0 24px 55px rgba(4,31,75,.28);text-align:center}.brand img{width:82px;height:82px;object-fit:contain;padding:8px;border-radius:20px;background:var(--blue);box-shadow:0 12px 24px rgba(8,102,198,.2)}.brand-name{margin:14px 0 0;color:var(--blue);font:700 19px "Space Grotesk",sans-serif;letter-spacing:.04em}.success-icon{width:68px;height:68px;margin:24px auto 18px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--orange));color:#fff;font:700 34px "Space Grotesk",sans-serif;box-shadow:0 12px 24px rgba(29,111,242,.2)}.kicker{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.title{margin:8px 0;color:var(--ink);font:600 27px "Space Grotesk",sans-serif}.message{margin:0 auto;max-width:360px;color:var(--muted);font-size:13px;line-height:1.6}.email{display:inline-block;margin-top:16px;padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:#edf5ff;color:var(--blue);font-size:12px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.button{display:block;margin:24px auto 0;width:100%;padding:13px 16px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#4c9dff);color:#fff;font:700 13px "DM Sans",sans-serif;text-decoration:none;box-shadow:0 12px 22px rgba(29,111,242,.2)}.button:hover{filter:brightness(1.05)}.secondary{display:block;margin-top:14px;color:var(--blue);font-size:12px;font-weight:600;text-decoration:none}.secondary:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<main class="success-card">
+  <div class="brand"><img src="./ascon-logo.svg" alt="Logo Ascon"><div class="brand-name">ARSIPIN</div></div>
+  <div class="success-icon" aria-hidden="true">✓</div>
+  <div class="kicker" id="successKicker">Verifikasi selesai</div>
+  <h1 class="title" id="successTitle">Email berhasil diverifikasi</h1>
+  <p class="message" id="successMessage">Akun Anda sudah aktif. Silakan masuk menggunakan email dan password yang telah didaftarkan.</p>
+  <div class="email" id="successEmail">Email terverifikasi</div>
+  <a class="button" id="primaryLink" href="./index.html">MASUK KE ARSIPIN</a>
+  <a class="secondary" id="secondaryLink" href="./index.html">Kembali ke halaman login</a>
+</main>
+<script>
+const params = new URLSearchParams(window.location.search);
+const mode = params.get('mode') === 'forgot' ? 'forgot' : 'register';
+const email = params.get('email') || '';
+const hasError = params.get('status') === 'error';
+if (email) document.getElementById('successEmail').textContent = '✉ ' + email;
+if (hasError) {
+  document.title = 'Verifikasi Gagal - Arsipin';
+  document.getElementById('successKicker').textContent = 'Verifikasi gagal';
+  document.getElementById('successTitle').textContent = 'Tautan tidak valid';
+  document.getElementById('successMessage').textContent = 'Tautan verifikasi mungkin sudah digunakan atau sudah kedaluwarsa. Silakan daftar ulang atau kirim tautan verifikasi baru.';
+  document.getElementById('successEmail').textContent = 'Tidak dapat memverifikasi email';
+  document.getElementById('primaryLink').textContent = 'DAFTAR ULANG';
+  document.getElementById('primaryLink').href = './register.html';
+} else if (mode === 'forgot') {
+  document.title = 'Email Reset Terkirim - Arsipin';
+  document.getElementById('successKicker').textContent = 'Pemulihan password';
+  document.getElementById('successTitle').textContent = 'Tautan reset terkirim';
+  document.getElementById('successMessage').textContent = 'Buka email Anda dan ikuti tautan reset password dari Firebase. Periksa folder Spam jika belum terlihat.';
+  document.getElementById('successEmail').textContent = email ? '✉ ' + email : 'Email pemulihan terkirim';
+  document.getElementById('primaryLink').textContent = 'KEMBALI KE LOGIN';
+}
+</script>
+</body>
+</html>

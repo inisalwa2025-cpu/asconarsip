@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verifikasi Email - Arsipin</title>
+<link rel="icon" type="image/svg+xml" href="./ascon-logo.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+:root{--ink:#17314f;--ink-2:#345077;--muted:#60789a;--line:rgba(77,120,185,.18);--accent:#1d6ff2;--blue:#0866c6;--orange:#ff9f43}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:linear-gradient(135deg,#071d49 0%,#0b4f9c 48%,#1d8fe1 100%);font-family:"DM Sans","Segoe UI",sans-serif;color:var(--ink)}.verify-card{width:min(470px,100%);padding:32px;background:rgba(255,255,255,.97);border:1px solid rgba(29,111,242,.22);border-left:7px solid var(--blue);border-radius:22px;box-shadow:0 24px 55px rgba(4,31,75,.28)}.brand{text-align:center}.brand img{width:82px;height:82px;object-fit:contain;padding:8px;border-radius:20px;background:var(--blue);box-shadow:0 12px 24px rgba(8,102,198,.2)}.brand-name{margin:14px 0 0;color:var(--blue);font:700 19px "Space Grotesk",sans-serif;letter-spacing:.04em}.kicker{margin-top:20px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;text-align:center}.title{margin:8px 0;color:var(--ink);font:600 27px "Space Grotesk",sans-serif;text-align:center}.subtitle{margin:0 auto 22px;max-width:350px;color:var(--muted);font-size:13px;line-height:1.6;text-align:center}.email-chip{display:flex;align-items:center;justify-content:center;gap:7px;margin:0 auto 18px;padding:10px 12px;width:fit-content;max-width:100%;border:1px solid rgba(29,111,242,.16);border-radius:999px;background:#edf5ff;color:var(--blue);font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.code-form{display:grid;gap:15px}.code-inputs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.code-inputs input{width:100%;height:52px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font:700 22px "Space Grotesk",sans-serif;text-align:center}.code-inputs input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(29,111,242,.1)}.verify-button{width:100%;padding:13px 16px;border:0;border-radius:11px;background:linear-gradient(135deg,var(--accent),#4c9dff);color:#fff;font:700 13px "DM Sans",sans-serif;cursor:pointer;box-shadow:0 12px 22px rgba(29,111,242,.2)}.verify-button:hover{filter:brightness(1.04)}.helper{text-align:center;color:var(--muted);font-size:12px;line-height:1.5}.resend{border:0;background:none;color:var(--blue);font:600 12px "DM Sans",sans-serif;cursor:pointer}.resend:disabled{color:#99abc2;cursor:not-allowed}.status{display:none;margin-top:14px;padding:11px 12px;border-radius:10px;background:#fff3e7;color:#a95d18;font-size:12px;line-height:1.45}.back{display:block;margin-top:18px;color:var(--blue);font-size:12px;font-weight:600;text-align:center;text-decoration:none}.back:hover{text-decoration:underline}@media(max-width:420px){.verify-card{padding:24px 18px;border-left-width:5px}.code-inputs{gap:5px}.code-inputs input{height:46px;font-size:19px}}
+ .hidden{display:none!important}.email-form{display:grid;gap:15px}.email-field{display:grid;gap:7px}.email-field label{color:var(--ink-2);font-size:12px;font-weight:600}.email-field input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font:14px inherit}.email-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(29,111,242,.1)}
+</style>
+</head>
+<body>
+<main class="verify-card">
+  <div class="brand"><img src="./ascon-logo.svg" alt="Logo Ascon"><div class="brand-name">ARSIPIN</div></div>
+  <div class="kicker" id="pageKicker">Keamanan akun</div>
+  <h1 class="title" id="pageTitle">Verifikasi email</h1>
+  <p class="subtitle" id="pageSubtitle">Buka email Anda dan klik tautan verifikasi untuk mengaktifkan akun.</p>
+  <form class="email-form" id="emailForm">
+    <div class="email-field"><label for="recoveryEmail">Email akun</label><input id="recoveryEmail" type="email" placeholder="Masukkan email Anda" autocomplete="email" required></div>
+    <button class="verify-button" type="submit">KIRIM TAUTAN VERIFIKASI</button>
+  </form>
+  <div class="email-chip hidden" id="emailChip">✉ email Anda</div>
+  <form class="code-form hidden" id="verificationForm">
+    <button class="verify-button" id="verifyButton" type="submit">CEK STATUS EMAIL</button>
+    <div class="helper">Belum menerima email? <button class="resend" id="resendButton" type="button" disabled>Kirim ulang (<span id="countdown">30</span>)</button></div>
+  </form>
+  <div class="status" id="verificationStatus"></div>
+  <a class="back" id="backLink" href="./register.html">Batalkan pendaftaran</a>
+</main>
+<script>
+const params = new URLSearchParams(window.location.search);
+let email = params.get('email') || '';
+const isForgotPassword = params.get('mode') === 'forgot';
+const emailForm = document.getElementById('emailForm');
+const recoveryEmail = document.getElementById('recoveryEmail');
+const emailChip = document.getElementById('emailChip');
+const verificationForm = document.getElementById('verificationForm');
+if (isForgotPassword) {
+  document.title = 'Lupa Password - Arsipin';
+  document.getElementById('pageKicker').textContent = 'Pemulihan akun';
+  document.getElementById('pageTitle').textContent = 'Lupa password?';
+  document.getElementById('pageSubtitle').textContent = 'Masukkan email untuk menerima tautan reset password dari Firebase.';
+  document.getElementById('verifyButton').textContent = 'KIRIM TAUTAN RESET';
+  document.getElementById('backLink').href = './index.html';
+  document.getElementById('backLink').textContent = 'Kembali ke halaman login';
+  emailForm.classList.remove('hidden');
+  verificationForm.classList.add('hidden');
+  emailChip.classList.add('hidden');
+} else {
+  emailForm.classList.add('hidden');
+  verificationForm.classList.remove('hidden');
+  emailChip.classList.remove('hidden');
+}
+if (!email) email = 'email Anda';
+emailChip.textContent = '✉ ' + email;
+const status = document.getElementById('verificationStatus');
+const resendButton = document.getElementById('resendButton');
+const countdown = document.getElementById('countdown');
+const backLink = document.getElementById('backLink');
+if (!isForgotPassword) {
+  backLink.addEventListener('click', async event => {
+    event.preventDefault();
+    try {
+      const {deleteUnverifiedAccount} = await import('./apijs/authentication.js');
+      await deleteUnverifiedAccount();
+    } finally {
+      window.location.href = './register.html';
+    }
+  });
+}
+let remaining = 30;
+let timer = setInterval(() => {
+  remaining -= 1;
+  countdown.textContent = remaining;
+  if (remaining <= 0) {
+    clearInterval(timer);
+    resendButton.disabled = false;
+    resendButton.textContent = 'Kirim ulang';
+  }
+}, 1000);
+emailForm.addEventListener('submit', event => {
+  event.preventDefault();
+  email = recoveryEmail.value.trim();
+  import('./apijs/authentication.js').then(({sendResetEmail}) => sendResetEmail(email))
+    .then(() => {
+      emailChip.textContent = '✉ ' + email;
+      emailForm.classList.add('hidden');
+      emailChip.classList.remove('hidden');
+      verificationForm.classList.toggle('hidden', isForgotPassword);
+      document.getElementById('pageSubtitle').textContent = isForgotPassword
+        ? 'Email pemulihan sudah dikirim. Gunakan tautan di email untuk mengatur ulang password.'
+        : 'Buka email Anda dan klik tautan verifikasi untuk mengaktifkan akun.';
+      status.style.display = 'block';
+      status.textContent = isForgotPassword
+        ? 'Periksa inbox atau folder spam. Tautan reset password berlaku sesuai pengaturan Firebase.'
+        : 'Periksa inbox atau folder spam email Anda.';
+      if (isForgotPassword) {
+        window.location.href = './sucessverification.html?mode=forgot&email=' + encodeURIComponent(email);
+      }
+    })
+    .catch(error => {
+      status.style.display = 'block';
+      status.textContent = error.code === 'auth/user-not-found'
+        ? 'Email belum terdaftar.'
+        : 'Email pemulihan gagal dikirim. Periksa konfigurasi Firebase.';
+    });
+});
+verificationForm.addEventListener('submit', event => {
+  event.preventDefault();
+  import('./apijs/authentication.js').then(async ({auth, currentUser}) => {
+    const user = currentUser();
+    if (!user) throw new Error('Sesi verifikasi tidak ditemukan.');
+    await user.reload();
+    if (user.emailVerified) {
+      window.location.href = './sucessverification.html?mode=register&email=' + encodeURIComponent(user.email || email);
+    } else {
+      status.style.display = 'block';
+      status.textContent = 'Email belum diverifikasi. Klik tautan verifikasi di inbox terlebih dahulu.';
+    }
+  }).catch(() => {
+    status.style.display = 'block';
+    status.textContent = 'Status email belum dapat diperiksa. Pastikan Firebase sudah terhubung.';
+  });
+});
+resendButton.addEventListener('click', () => {
+  remaining = 30;
+  resendButton.disabled = true;
+  resendButton.innerHTML = 'Kirim ulang (<span id="countdown">30</span>)';
+  status.style.display = 'block';
+  import('./apijs/authentication.js').then(({resendVerificationEmail}) => resendVerificationEmail())
+    .then(() => { status.style.display = 'block'; status.textContent = 'Email verifikasi baru sudah dikirim. Periksa inbox Anda.'; })
+    .catch(async error => {
+      const {authMessage} = await import('./apijs/authentication.js');
+      status.style.display = 'block';
+      status.textContent = authMessage(error);
+    });
+});
+</script>
+</body>
+</html>

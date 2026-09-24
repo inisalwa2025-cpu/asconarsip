@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-labelledby="title desc">
+  <title id="title">Ascon</title>
+  <desc id="desc">Logo Ascon dengan bentuk berlian oranye dan lingkaran biru</desc>
+  <circle cx="150" cy="150" r="141" fill="#fff"/>
+  <path fill="#0866c6" d="M146 1a149 149 0 0 1 153 148h-29A120 120 0 0 0 146 30V1ZM299 151a149 149 0 0 1-145 148v-29a120 120 0 0 0 116-119h29ZM154 299A149 149 0 0 1 2 151h29a120 120 0 0 0 123 119v29ZM2 149A149 149 0 0 1 146 2v29A120 120 0 0 0 31 149H2Z"/>
+  <path fill="#ff8500" d="m150 52 98 98-98 98-98-98 98-98Z"/>
+  <text x="150" y="181" fill="#fff" font-family="Georgia, serif" font-size="92" font-weight="700" text-anchor="middle">a$</text>
+</svg>
